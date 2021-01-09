@@ -628,7 +628,7 @@ class Admin_panel extends CI_Controller {
         $referrer_tmp_file = $_FILES['referrer_file']['tmp_name'];
         $referrer_file_size = $_FILES["referrer_file"]["size"];
         
-        $data['surgery_patient_id'] = $this->input->post("surgery_patient_id");
+        $data['patient_id'] = $this->input->post("surgery_patient_id");
         $data['surgery_type_id'] = $this->input->post("surgery_type");
         $data['doctor_id'] = $this->input->post("doctor_id");
         $data['surgery_date'] = date('Y-m-d H:i:s', strtotime($this->input->post("surgery_date")));
@@ -666,7 +666,7 @@ class Admin_panel extends CI_Controller {
             $this->session->set_flashdata("error", "Check File Extensions Parent Risk Bound.");
         }
 
-        redirect(base_url() . "add_surgery_patient_details");
+        redirect(base_url() . "surgery_patient_list");
     }
 
     
@@ -912,7 +912,7 @@ class Admin_panel extends CI_Controller {
         $referrer_file_size = $_FILES["referrer_file"]["size"];
         $data['surgery_patient_details.user_id'] = $this->session->userdata('userID');
         if (!empty($this->input->post("surgery_patient_id"))) {
-            $data['surgery_patient_id'] = $this->input->post("surgery_patient_id");
+            $data['patient_id'] = $this->input->post("surgery_patient_id");
         }
 
         if (!empty($this->input->post("surgery_type"))) {
@@ -999,15 +999,15 @@ class Admin_panel extends CI_Controller {
                 $file_size = $_FILES["patient_surgery_file"]["size"][$i];
                 if (isset($file_name)) {
                     $this->upload_multiple_images($file_name, $file_error, $tmp_file, $file_size, 'patient-surgery-file');
-                    $_POST['image'] = '';
                     $image[] = array("surgery_patient_document.surgery_patient_id" => $this->input->post("edit_id"), "surgery_patient_document.hospital_surgery_file" => $this->input->post("image"), "surgery_patient_document.user_id" => $this->session->userdata('userID'));
+                    $_POST['image'] = '';
                 }
-            }
+            }           
             $this->surgery_model->insertPatientSurgeryfileInBulk($image);
-            $this->surgery_model->deletePatientSurgeryFile(array("surgery_patient_document.surgery_patient_id" => $this->input->post("edit_id")));
-            foreach ($this->input->post("old_patient_surgery_file") as $value) {
-                unlink(FCPATH . 'images/patient-surgery-file/' . $value);
-            }
+            //$this->surgery_model->deletePatientSurgeryFile(array("surgery_patient_document.surgery_patient_id" => $this->input->post("edit_id")));
+//            foreach ($this->input->post("old_patient_surgery_file") as $value) {
+//                unlink(FCPATH . 'images/patient-surgery-file/' . $value);
+//            }
         }
         
         if (!empty($data)) {
@@ -1017,7 +1017,7 @@ class Admin_panel extends CI_Controller {
             $this->session->set_flashdata("error", "Please Try Again.....");
         }
 
-        redirect(base_url() . "edit_surgery_patient_details/".$this->input->post("edit_id"));
+        redirect(base_url() . "surgery_patient_list");
         
     }
     
@@ -1044,9 +1044,8 @@ class Admin_panel extends CI_Controller {
     }
     
     function download_patient_surgery_file($image, $id) {
-        $file = base64_decode($image);
         $this->load->helper('download');
-        force_download('images/patient-surgery-file/' . $file, NULL);
+        force_download('images/patient-surgery-file/' . $image, NULL);
         redirect(base_url() . "download_hospital_surgery_file/" . $id);
     }
     

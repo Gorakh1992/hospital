@@ -274,7 +274,7 @@ class Surgery_model extends CI_Model {
     
     
     function insertPatientSurgeryfileInBulk($data){
-        $this->db->insert_batch("patient_details", $data);
+        $this->db->insert_batch("surgery_patient_document", $data);
         return $this->db->insert_id();
     }
     
