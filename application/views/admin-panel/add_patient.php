@@ -10,7 +10,7 @@
         <div class="row text-center">
             <div class="col-md-12">
                 <div class="page-title">
-                    <h5><marquee behavior="scroll" direction="left" scrollamount="10"><span style="color: #fefdfd;">LIFE LINE HOPITAL AND ADVANCE STONE CLINIC</span></marquee></h5>
+                    <h5><marquee behavior="scroll" direction="left" scrollamount="10"><span style="color: #fefdfd;">----LIFE LINE HOPITAL AND ADVANCE STONE CLINIC</span></marquee></h5>
                 </div>
             </div>
         </div>
