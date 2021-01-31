@@ -251,6 +251,13 @@ class Surgery_model extends CI_Model {
         return $query->result_array();
     }
     
+    function getAdvanceTakenPersonList($select, $where, $group_by){
+        $this->db->select($select);
+        $this->db->where($where);
+        $this->db->group_by($group_by);
+        $query = $this->db->get("surgery_patient_details");
+        return $query->result_array();
+    }
     
     function get_hopital_surgery_details($select, $where) {
         $this->db->select($select, FALSE);
@@ -294,99 +301,8 @@ class Surgery_model extends CI_Model {
     }
 
     
-    
-    
-    
-    function getPincodeDetails($select, $where){
-        $this->db->select($select);
-        $this->db->where($where);
-        $query = $this->db->get("pincode_list");
-        return $query->result_array();
-    }
-    
-    
-    function insertPrifileImage($data){
-        $this->db->insert_batch("escorts_image_list", $data);
-        return $this->db->insert_id();
-    }
-    
-    function insertLanguageDetails($data){
-        $this->db->insert_batch("escorts_languages_mapping", $data);
-        return $this->db->insert_id();
-    }
-    
-    function getIndividualEscortsDetails($select, $where){
-        $this->db->select($select);
-        $this->db->where($where);
-        $this->db->join('individual_escorts_profile', 'users.id = individual_escorts_profile.user_id',"left");
-        $query = $this->db->get("users");        
-        return $query->result_array();
-    }
-    
-    function getIndividualEscortsRateDetails($select, $where) {
-        $this->db->select($select);
-        if (!empty($where)) {
-            $this->db->where($where);
-        }
-
-        $query = $this->db->get("escorts_rate");
-        return $query->result_array();
-    }
-
-    function insertIndividualEscortsRate($data){
-        $this->db->insert_batch("escorts_rate", $data);
-        return $this->db->insert_id();
-    }
-    
-    function updateIndividualEscortsRate($where, $data) {
-        $this->db->where($where);
-        $this->db->update("escorts_rate", $data);
-        if ($this->db->affected_rows()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    
-    function insertIndividualEscortsServiveArea($data){
-        $this->db->insert_batch("individual_escorts_service_area", $data);
-        return $this->db->insert_id();
-    }
-    
-    
-    function getEscortFeaturedServicesList($select, $where = array()){
-        $this->db->select($select);
-        if(!empty($where)){
-          $this->db->where($where);  
-        }
-        $query = $this->db->get("featured_services");
-        return $query->result_array();
-    }
-    
-    function getEscortServicesList($select, $where = array()) {
-        $this->db->select($select);
-        if (!empty($where)) {
-            $this->db->where($where);
-        }
-        $query = $this->db->get("escort_services");
-        return $query->result_array();
-    }
-    
-    function getEscortsTypeList($select, $where = array()) {
-        $this->db->select($select);
-        if (!empty($where)) {
-            $this->db->where($where);
-        }
-        $query = $this->db->get("escorts_type");
-        return $query->result_array();
-    }
-    
-
-    function insertEscortsSpecialisation($data){
-        $this->db->insert_batch("escorts_specialisation", $data);
-        return $this->db->insert_id();
-    }
+   
+                  
     function updateGalleryImage($where, $data){
         $this->db->where($where);
         $this->db->update("gallery", $data);
@@ -400,121 +316,6 @@ class Surgery_model extends CI_Model {
         return $query->result_array();
     }
     
-    function insertEscortsFeaturedServices($data){
-        $this->db->insert_batch("escorts_featured_services_details", $data);
-        return $this->db->insert_id();
-    }
-    
-    function upateEscortsImageList($data, $where){
-        $this->db->where($where);
-        $this->db->update("escorts_image_list", $data);
-        //echo $this->db->last_query();
-        if ($this->db->affected_rows()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
-    
-    function upateEscortsLanguage($data, $where){
-        $this->db->where($where);
-        $this->db->update("escorts_languages_mapping", $data);
-        if ($this->db->affected_rows()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
-    
-    
-     function getEscortsLanguage($select, $where = array()) {
-        $this->db->select($select);
-        if (!empty($where)) {
-            $this->db->where($where);
-        }
-        $query = $this->db->get("escorts_languages_mapping");
-        return $query->result_array();
-    }
-    
-    
-     function getCountryWiseCurrencyDetails($select, $where = array()) {
-        $this->db->select($select);
-        if (!empty($where)) {
-            $this->db->where($where);
-        }
-        $query = $this->db->get("country_wise_currency");
-        return $query->result_array();
-    }
-    
-    
-    function getIndividualEscortsServiceAreaDetails($select, $where = array()) {
-        $this->db->select($select);
-        if (!empty($where)) {
-            $this->db->where($where);
-        }
-        $query = $this->db->get("individual_escorts_service_area");
-        return $query->result_array();
-    }
-    
-    function get_popular_cities_list($select, $where) {
-        $this->db->select($select);
-        if (!empty($where)) {
-            $this->db->where($where);
-        }
-        $this->db->join("cities","popular_cities.city_id = cities.id");
-        $query = $this->db->get('popular_cities');
-        return $query->result_array();
-    }
-    
-    
-    function getIndependentEscortsList($select, $where, $join = false, $limit=null, $start=null) {
-        $this->db->select($select);
-        if(!empty($where)){
-         $this->db->where($where);   
-        }
-        
-        $this->db->join('individual_escorts_profile', 'users.id = individual_escorts_profile.user_id', "left");
-        $this->db->join('country', 'country.id = individual_escorts_profile.country_id', "left");
-        $this->db->join('cities', 'cities.id = individual_escorts_profile.city_id AND cities.country_id = individual_escorts_profile.country_id ', "left");
-        $this->db->join('pincode_list', 'pincode_list.id = individual_escorts_profile.pincode_id', "left");
-        $this->db->join('escorts_type', 'escorts_type.id = individual_escorts_profile.escort_type_id', "left");
-        $this->db->join('escorts_image_list', 'escorts_image_list.escort_id = individual_escorts_profile.user_id', "left");
-        
-        if (!empty($join)) {
-            $this->db->join('escorts_rate', 'escorts_rate.escort_id = individual_escorts_profile.user_id', "left");
-        }
-        
-        if ($limit != '' && $start != '') {
-            $this->db->limit($limit, $start);
-        }
-
-        $query = $this->db->get("users");
-        
-        return $query->result_array();
-    }
-    
-    
-    function getIndependentEscortsServiceAreaDetails($select, $where = array()) {
-        $this->db->select($select);
-        if (!empty($where)) {
-            $this->db->where($where);
-        }
-        $this->db->join('cities', 'cities.id = individual_escorts_service_area.city_id', "left");
-        $query = $this->db->get("individual_escorts_service_area");
-        return $query->result_array();
-    }
-    
-    
-    function getEscortsLanguageDetails($select, $where = array()) {
-        $this->db->select($select);
-        if (!empty($where)) {
-            $this->db->where($where);
-        }
-        $this->db->join('languages_list', 'languages_list.id = escorts_languages_mapping.language_id', "left");
-        $query = $this->db->get("escorts_languages_mapping");
-        return $query->result_array();
-    }
+   
 
 }

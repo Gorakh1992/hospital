@@ -34,7 +34,7 @@
                     <ul class="sub">
                         <li><a href="<?php echo base_url(); ?>add_surgery_patient_details">Add Surgery</a></li>
                         <li><a href="<?php echo base_url(); ?>surgery_patient_list">Surgery List</a></li>
-                        <li><a href="#">Advance Search </a></li>
+                        <li><a href="<?php echo base_url(); ?>advance_search">Advance Search </a></li>
                     </ul>
                 </li>
                 <li class="sub-menu">
@@ -54,9 +54,9 @@
                         <span>User Manager</span> 
                     </a>
                     <ul class="sub">
-                        <li><a href="#">Create New Login</a></li>
+                        <li><a href="<?php echo base_url(); ?>create_new_user_account">Create New Login</a></li>
                         <li><a href="#">Change password</a></li>
-                        <li><a href="#"> User Detais</a></li>
+                        <li><a href="<?php echo base_url(); ?>users_list"> User Detais</a></li>
                     </ul>
                 </li>
 <!--                <li class="sub-menu">

@@ -44,15 +44,15 @@
                                         <div class="row">
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
                                                 <label>OPD Number Id.</label>
-                                                <input class="form-control" type="text" name="opd_number_id" id="opd_number_id" value="<?php if($patient_list['opd_number_id']){ echo $patient_list['opd_number_id']; } ?>" placeholder="Enter OPD Number Id">
+                                                <input class="form-control" type="text" name="opd_number_id" id="opd_number_id" value="<?php if($patient_list['opd_number_id']){ echo $patient_list['opd_number_id']; } ?>" readonly="" placeholder="Enter OPD Number Id">
                                             </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
                                                 <label>Patient Name</label>
                                                 <input class="form-control" type="text" name="patient_name" id="patient_name" value="<?php if($patient_list['patient_name']){ echo $patient_list['patient_name']; } ?>" placeholder="Enter Patient Name">
                                             </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
-                                                <label>Patient Adhar Number</label>
-                                                <input class="form-control" type="number" min="0" name="adhar_card_number" id="adhar_card_number" value="<?php if($patient_list['adhar_card_number']){ echo $patient_list['adhar_card_number']; } ?>" placeholder="Enter Adhar Number">
+                                                <label>Contact Number</label>
+                                                <input class="form-control" type="number" min="0" name="contact_number" id="contact_number" value="<?php if($patient_list['contact_number']){ echo $patient_list['contact_number']; } ?>" placeholder="Enter Contact Number">
                                             </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
                                                 <label>Date</label>
@@ -63,12 +63,13 @@
                                                 <input class="form-control" type="text" name="valid_date" id="valid_date" value="<?php if($patient_list['valid_date']){ echo $patient_list['valid_date']; } ?>" placeholder="DD/MM/YYYY">
                                             </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
-                                                <label>Age In Year</label>
-                                                <input class="form-control" type="number" min="0" name="patient_age" id="patient_age" value="<?php if($patient_list['patient_age']){ echo $patient_list['patient_age']; } ?>" placeholder="Enter Age">
+                                                <label>Shift</label>
+                                                <input class="form-control" type="text" name="shift" id="shift" value="<?php if($patient_list['shift']){ echo $patient_list['shift']; } ?>" placeholder="Enter shift">
                                             </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
-                                                <label>Sex</label>
-                                                <select class="form-control" name="sex" id="sex">
+                                                <label>Department</label>
+                                                <input class="form-control" type="text" name="department" id="department" value="<?php if($patient_list['department']){ echo $patient_list['department']; } ?>" placeholder="Enter department">
+<!--                                                <select class="form-control" name="sex" id="sex">
                                                     <option disabled="" selected="">Select Sex</option>
                                                     <?php 
                                                             $sex_array = array('male'=> 'Male', 'female'=>'Female', 'other' => 'Other'); 
@@ -76,7 +77,7 @@
                                                         ?>
                                                     <option value="<?php echo  $key; ?>" <?php if($patient_list['sex'] == $key){ echo 'selected'; } ?>><?php echo  $val; ?></option>
                                                     <?php } ?>
-                                                </select>
+                                                </select>-->
                                                 
                                             </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">

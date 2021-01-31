@@ -101,10 +101,13 @@
                                                 <label>Surgery Date</label>
                                                 <input class="form-control" type="text" name="surgery_date" id="surgery_date" placeholder="DD/MM/YYYY">
                                             </div>
-                                            
+                                            <div class="form-group col-md-4 col-sm-6 col-xs-6">
+                                                <label>Adhar No.</label>
+                                                <input class="form-control" type="number"  name="patient_adhar_number" id="patient_adhar_number" placeholder="Enter Adhar No" value="<?php echo $surgery_patient['patient_adhar_number']; ?>">
+                                            </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
                                                 <label>Surgery Amount</label>
-                                                <input class="form-control" type="number" min="1" name="surgery_amount" id="surgery_amount" value="<?php echo $surgery_patient['surgery_amount']; ?>" placeholder="Enter Surgery Amount">
+                                                <input class="form-control" type="number" min="0" name="surgery_amount" id="surgery_amount" value="<?php echo $surgery_patient['surgery_amount']; ?>" placeholder="Enter Surgery Amount">
                                             </div>
                                             
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
@@ -113,19 +116,14 @@
                                             </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
                                                 <label>Advance Amount</label>
-                                                <input class="form-control" type="number" min="1" name="advance_amount" id="advance_amount" value="<?php echo $surgery_patient['advance_amount']; ?>" placeholder="Enter Advance Amount">
+                                                <input class="form-control" type="number" min="0" name="advance_amount" id="advance_amount" value="<?php echo $surgery_patient['advance_amount']; ?>" placeholder="Enter Advance Amount">
                                             </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
                                                 <label>Pending Amount</label>
                                                 <input class="form-control" type="number" min="0" name="pending_amount" id="pending_amount" value="<?php echo $surgery_patient['pending_amount']; ?>" placeholder="Enter Pending Amount" readonly="">
                                             </div>
                                             
-                                            
-                                            <div class="form-group col-md-4 col-sm-6 col-xs-6">
-                                                <label>Parent Risk Bound</label>
-                                                <input class="form-control" type="file" name="parent_risk_bound" id="parent_risk_bound">
-                                                <input class="form-control" type="hidden" name="old_parent_risk_bound" id="old_parent_risk_bound" value="<?php echo ($surgery_patient['patient_risk_bound_file']); ?>">
-                                            </div>
+                                                                                       
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
                                                 <label>Patient Risk Bound</label>
                                                 <input class="form-control" type="file" name="patient_risk_bound" id="patient_risk_bound">

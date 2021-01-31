@@ -54,24 +54,6 @@ $route['404_override'] = '';
 //$route["(.+)"]	= "home/getSlug/$1";
 //$route['users/logout'] = 'home/logout';
 
-$route['testing'] = 'home/testing';
-
-$route['view_profile/(:any)/(:num)'] = 'home/escorts_view_profile/$1/$2';
-$route['users/dashboard'] = 'usersprofile/users_profile/individual_escorts_dasboard';
-$route['users/profile'] = 'usersprofile/users_profile/add_profile';
-$route['users/change_password'] = 'usersprofile/users_profile/individual_escorts_change_password';
-
-//Agency
-$route['agency/dashboard'] = 'usersprofile/agency_profile/agency_dasboard';
-$route['agency/profile'] = 'usersprofile/agency_profile/add_agency_profile';
-$route['agency/add_escort_profile'] = 'usersprofile/agency_profile/add_agency_escort_profile';
-$route['agency/escorts_profile_list/(:any)'] = 'usersprofile/agency_profile/agency_escorts_profile_list/$1';
-$route['agency/edit_escort_profile/(:any)'] = 'usersprofile/agency_profile/edit_escort_profile/$1';
-$route['agency/change_password'] = 'usersprofile/agency_profile/change_escort_password';
-
-
-
-
     /* ////////////////////////////////////////////////////////////// 
      *                                                             *
      * @AUTHOR:   GORAKH NATH MEHTA (2020-2021)                    *
@@ -89,10 +71,10 @@ $route['download_patient_file/(:any)'] = 'admin_panel/download_patient_file/$1';
 $route['download_parent_file/(:any)'] = 'admin_panel/download_parent_file/$1';
 $route['download_referrer_file/(:any)'] = 'admin_panel/download_referrer_file/$1';
 $route['download_patient_surgery_file/(:any)/(:num)'] = 'admin_panel/download_patient_surgery_file/$1/$2';
-
-
 $route['download_hospital_surgery_file/(:any)'] = 'admin_panel/download_hospital_surgery_file/$1';
 $route['edit_surgery_patient_details/(:any)'] = 'admin_panel/edit_surgery_patient_details/$1';
-
+$route['advance_search'] = 'admin_panel/advance_search_surgery_patient';
+$route['create_new_user_account'] = 'admin_panel/create_new_user_account';
+$route['users_list'] = 'admin_panel/users_list';
 $route['translate_uri_dashes'] = FALSE;
 

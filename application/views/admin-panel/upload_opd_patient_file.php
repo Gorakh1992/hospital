@@ -52,8 +52,15 @@
         <br>
         <div class="row text-center">
             <div class="col-md-12">
-                <div class = "alert alert-danger" id="error_id" style="display: none;">
+            <div class = "alert alert-danger" id="error_id" style="display: none;">
                   Upload files having extensions: ( .xlsx, .xls )
+                   <button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="resetFile()">
+                       <span aria-hidden="true">&times;</span>
+                   </button>
+              </div>
+                
+            <div class = "alert alert-danger" id="excel_error_id" style="display: none;">
+                  Please remove first column excel file should not be empty.
                    <button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="resetFile()">
                        <span aria-hidden="true">&times;</span>
                    </button>
@@ -104,6 +111,7 @@
                                 <br>
                                     <div class="row" style="text-align: center;">
                                         <div class="form-group col-md-12 col-sm-12 col-xs-12">
+                                            <input type="hidden" id="allow_submit" value="1">
                                             <button type="submit" class="btn btn-primary" id="upload_patient_file">Upload</button>
                                         </div>
                                     </div>
@@ -116,46 +124,96 @@
         </div>
     </section>
 </section>
-     
-    <script>
-        
-        $("body").on("click", "#upload_patient_file", function () {
-            var allowedFiles = [".xls", ".xlsx"];
-            var fileUpload = $("#patient_file");
-            var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
-            if (!regex.test(fileUpload.val().toLowerCase())) {
-                $("#error_id").css({'display':'block'});
-                return false;
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
+<script>
+    var ExcelToJSON = function() {
+      this.parseExcel = function(file) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var data = e.target.result;
+          var workbook = XLSX.read(data, {
+            type: 'binary'
+          });
+          workbook.SheetNames.forEach(function(sheetName) {
+            // Here is your object
+            var XL_row_object = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
+            var json_object = JSON.stringify(XL_row_object);
+            if(json_object.length > 2){
+                $("#allow_submit").val(1);
+                $("#excel_error_id").css({'display':'none'});
+            }else{
+                $("#allow_submit").val('');
+               $("#excel_error_id").css({'display':'block'}); 
             }
-        });     
-       
-        function resetFile() {
-          const file = document.querySelector('#patient_file');
-          file.value = '';
+          })
+        };
+
+        reader.onerror = function(ex) {
+          console.log(ex);
+        };
+
+        reader.readAsBinaryString(file);
+      };
+  };
+
+  function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
+    var xl2json = new ExcelToJSON();
+    xl2json.parseExcel(files[0]);
+  }
+
+ document.getElementById('patient_file').addEventListener('change', handleFileSelect, false);
+ 
+</script>
+
+<script>
+
+    $("body").on("click", "#upload_patient_file", function () {
+        var allowedFiles = [".xls", ".xlsx"];
+        var fileUpload = $("#patient_file");
+        var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:()])+(" + allowedFiles.join('|') + ")$");
+        if (!regex.test(fileUpload.val().toLowerCase())) {
+            $("#error_id").css({'display':'block'});
+            return false;
+        }else{
+            $("#error_id").css({'display':'none'});
         }
+        
+        var confirmation_flag = $("#allow_submit").val();
+        if(confirmation_flag == ''){
+            return false;
+        }
+    });     
 
-	$(document).ready(function() {
-		//BOX BUTTON SHOW AND CLOSE
-	   jQuery('.small-graph-box').hover(function() {
-		  jQuery(this).find('.box-button').fadeIn('fast');
-	   }, function() {
-		  jQuery(this).find('.box-button').fadeOut('fast');
-	   });
-           
-	   jQuery('.small-graph-box .box-close').click(function() {
-		  jQuery(this).closest('.small-graph-box').fadeOut(200);
-		  return false;
-	   });
-	});
+    function resetFile() {
+      const file = document.querySelector('#patient_file');
+      file.value = '';
+    }
 
-	$(document).ready(function() {
-            $("div.bhoechie-tab-menu>div.list-group>a").click(function(e) {
-                e.preventDefault();
-                $(this).siblings('a.active').removeClass("active");
-                $(this).addClass("active");
-                var index = $(this).index();
-                $("div.bhoechie-tab>div.bhoechie-tab-content").removeClass("active");
-                $("div.bhoechie-tab>div.bhoechie-tab-content").eq(index).addClass("active");
-            });
-	});
+    $(document).ready(function() {
+            //BOX BUTTON SHOW AND CLOSE
+       jQuery('.small-graph-box').hover(function() {
+              jQuery(this).find('.box-button').fadeIn('fast');
+       }, function() {
+              jQuery(this).find('.box-button').fadeOut('fast');
+       });
+
+       jQuery('.small-graph-box .box-close').click(function() {
+              jQuery(this).closest('.small-graph-box').fadeOut(200);
+              return false;
+       });
+    });
+
+    $(document).ready(function() {
+        $("div.bhoechie-tab-menu>div.list-group>a").click(function(e) {
+            e.preventDefault();
+            $(this).siblings('a.active').removeClass("active");
+            $(this).addClass("active");
+            var index = $(this).index();
+            $("div.bhoechie-tab>div.bhoechie-tab-content").removeClass("active");
+            $("div.bhoechie-tab>div.bhoechie-tab-content").eq(index).addClass("active");
+        });
+    });
 </script>

@@ -55,8 +55,8 @@
             <div class="agency-list">
                 <div class="fliters">
                 	<div class="row">
-                    	<div class="col-md-2">
-                    		<p style="margin-top: 9px;">Surgery Search: </p>
+                        <div class="col-md-1">
+                            Surgery
                     	</div>
                     	<div class="col-md-5">
                             <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
@@ -74,10 +74,55 @@
                                 <?php } ?>
                             </select>
                     	</div>
-                        <div class="col-md-2">
-                            <button type="button" id="search_surgery_patient" class="btn btn-primary">Search</button>
+                        <div class="col-md-3">
+                    		<select id="surgery_type_id" name="surgery_type_id">
+                                <option selected="" value="">Select Surgery Type</option>
+                                <?php foreach ($surgery_list as $value){ ?>
+                                <option value="<?php echo $value['id']; ?>"><?php echo ucfirst($value['surgery_name']); ?></option>
+                                <?php } ?>
+                            </select>
+                    	</div>
+                        
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-1">
+                            Discharge
+                    	</div>
+                    	<div class="col-md-5">
+                            <div id="reportrange_discharge" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                <i class="fa fa-calendar"></i>&nbsp;
+                                <span></span> <i class="fa fa-caret-down"></i>
+                            </div>
+                            <input type="hidden" name="discharge_start_date" id="discharge_start_date" value="">
+                            <input type="hidden" name="discharge_end_date" id="discharge_end_date" value="">
+                    	</div>
+                        <div class="col-md-3">
+                            <select id="doctor_id" name="doctor_id">
+                                <option selected="" value="">Select Doctor Name</option>
+                                <?php foreach ($doctor_list as $value){ ?>
+                                <option value="<?php echo $value['id']; ?>"><?php echo "Dr.". ucfirst($value['name']); ?></option>
+                                <?php } ?>
+                            </select>
+                    	</div>
+                        <div class="col-md-3">
+                    		<select id="advance_taken" name="advance_taken">
+                                <option selected="" value=""> Advance Taken By</option>
+                                <?php foreach ($advance_taken_by as $value){ ?>
+                                <option value="<?php echo $value['advance_taken']; ?>"><?php echo ucfirst($value['advance_taken']); ?></option>
+                                <?php } ?>
+                            </select>
+                    	</div>
+                        
+                    </div>
+                     <br>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button type="button" id="search_surgery_patient" style="float: right; width: 22%;" class="btn btn-primary">Search</button>
                     	</div>
                     </div>
+                    <br>
+                    <div/>
                 	
                 </div>
                 <div class="col-md-12 bhoechie-tab-container">
@@ -96,7 +141,7 @@
                                         <th  class="text-center" data-orderable="false">Advance Amount</th>
                                         <th  class="text-center" data-orderable="false">Pending Amount</th>
                                         <th  class="text-center order-true" data-orderable="true"> Advance Taken By</th>
-                                        <th  class="text-center" data-orderable="false">Adhar No.</th>
+                                        <th  class="text-center" data-orderable="false">Parent Risk Bound</th>
                                         <th  class="text-center" data-orderable="false">Patient Risk Bound</th>
                                         <th  class="text-center" data-orderable="false">Patient Referrer Doc</th>
                                         <th  class="text-center" data-orderable="false">Discharge Date</th>
@@ -137,7 +182,12 @@
         var data = {
             'start_date': $("#start_date").val(),
             'end_date': $("#end_date").val(),
-            'doctor_id': $("#doctor_id").val()
+            'doctor_id': $("#doctor_id").val(),
+            'discharge_end_date': $("#discharge_end_date").val(),
+            'discharge_start_date': $("#discharge_start_date").val(),
+            'surgery_type_id': $("#surgery_type_id").val(),
+            'advance_taken': $("#advance_taken").val(),
+            'partient_id': $("#partient_id").val(),
         };
 
         return data;
@@ -186,6 +236,11 @@
                     d.start_date = entity.start_date,
                     d.end_date = entity.end_date,
                     d.doctor_id = entity.doctor_id,
+                    d.discharge_start_date = entity.discharge_start_date,
+                    d.discharge_end_date = entity.discharge_end_date,
+                    d.partient_id = entity.partient_id,
+                    d.advance_taken = entity.advance_taken,
+                    d.surgery_type_id = entity.surgery_type_id,
                     d.search_flag = true
                 },
             },
@@ -263,6 +318,8 @@ $(function() {
         $("#end_date").val(end.format('YYYY-MM-DD'));
         $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
     }
+    
+    
 
     $('#reportrange').daterangepicker({
         startDate: start,
@@ -278,6 +335,31 @@ $(function() {
     }, cb);
 
     cb(start, end);
+    
+    
+    var start1 = moment().subtract(29, 'days');
+    var end1 = moment();
+
+    function discharge_cb(start1, end1) {
+        $("#discharge_start_date").val(start1.format('YYYY-MM-DD'));
+        $("#discharge_end_date").val(end1.format('YYYY-MM-DD'));
+        $('#reportrange_discharge span').html(start1.format('MMMM D, YYYY') + ' - ' + end1.format('MMMM D, YYYY'));
+    }
+
+    $('#reportrange_discharge').daterangepicker({
+        startDate: start1,
+        endDate: end1,
+        ranges: {
+           'Today': [moment(), moment()],
+           'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+           'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+           'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+           'This Month': [moment().startOf('month'), moment().endOf('month')],
+           'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+    }, discharge_cb);
+
+    discharge_cb(start1, end1);
 
 });
 </script>  

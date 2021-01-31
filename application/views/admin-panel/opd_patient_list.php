@@ -89,11 +89,11 @@
                                         <th  class="text-center" data-orderable="false">S.No</th>
                                         <th  class="text-center order-true" data-orderable="true">OPD Number Id</th>
                                         <th  class="text-center" data-orderable="false">Patient Name</th>
-                                        <th  class="text-center order-true" data-orderable="true"> Adhar Number</th>
+                                        <th  class="text-center" data-orderable="false">Department</th>
                                         <th  class="text-center" data-orderable="false">Date</th>
                                         <th  class="text-center" data-orderable="false">Valid</th>
-                                        <th  class="text-center" data-orderable="false">Age</th>
-                                        <th  class="text-center" data-orderable="false">Sex</th>
+                                        <th  class="text-center" data-orderable="false">Shift</th>
+                                        <th  class="text-center" data-orderable="false">OPD Type</th>
                                         <th  class="text-center" data-orderable="false">Guardian Name</th>
                                         <th  class="text-center" data-orderable="false">Doctor</th>
                                         <th  class="text-center" data-orderable="false">Address</th>

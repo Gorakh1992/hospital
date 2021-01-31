@@ -10,7 +10,7 @@
         <div class="row text-center">
             <div class="col-md-12">
                 <div class="page-title">
-                    <h5><marquee behavior="scroll" direction="left" scrollamount="10"><span style="color: #fefdfd;">----LIFE LINE HOPITAL AND ADVANCE STONE CLINIC</span></marquee></h5>
+                    <h5><marquee behavior="scroll" direction="left" scrollamount="10"><span style="color: #fefdfd;">LIFE LINE HOPITAL AND ADVANCE STONE CLINIC</span></marquee></h5>
                 </div>
             </div>
         </div>
@@ -51,16 +51,16 @@
                                     <form name="add_opd_patient" id="add_opd_patient" method="post" action="<?php echo base_url(); ?>admin_panel/process_add_opd_patient" class="form-alt">
                                         <div class="row">
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
-                                                <label>OPD Number Id.</label>
-                                                <input class="form-control" type="text" name="opd_number_id" id="opd_number_id" placeholder="Enter OPD Number Id">
+                                                <label>OPD Number Id</label>
+                                                <input class="form-control" type="text" name="opd_number_id" id="opd_number_id" placeholder="Enter OPD Number Id" required="">
                                             </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
                                                 <label>Patient Name</label>
                                                 <input class="form-control" type="text" name="patient_name" id="patient_name" placeholder="Enter Patient Name">
                                             </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
-                                                <label>Patient Adhar Number</label>
-                                                <input class="form-control" type="number" min="0" name="adhar_card_number" id="adhar_card_number" placeholder="Enter Adhar Number">
+                                                <label>Contact Number</label>
+                                                <input class="form-control" type="number" min="0" name="contact_number" id="contact_number" placeholder="Enter Contact Number">
                                             </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
                                                 <label>Date</label>
@@ -71,12 +71,13 @@
                                                 <input class="form-control" type="text" name="valid_date" id="valid_date" placeholder="DD/MM/YYYY">
                                             </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
-                                                <label>Age In Year</label>
-                                                <input class="form-control" type="number" min="0" name="patient_age" id="patient_age" placeholder="Enter Age">
+                                                <label>Shift</label>
+                                                <input class="form-control" type="text" name="shift" id="shift" placeholder="Enter shift">
                                             </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
-                                                <label>Sex</label>
-                                                <select class="form-control" name="sex" id="sex">
+                                                <label>Department</label>
+                                                <input class="form-control" type="text" name="department" id="department" placeholder="Enter Department">
+<!--                                                <select class="form-control" name="sex" id="sex">
                                                     <option disabled="" selected="">Select Sex</option>
                                                     <?php 
                                                             $sex_array = array('male'=> 'Male', 'female'=>'Female', 'other' => 'Other'); 
@@ -84,7 +85,7 @@
                                                         ?>
                                                     <option value="<?php echo  $key; ?>"><?php echo  $val; ?></option>
                                                     <?php } ?>
-                                                </select>
+                                                </select>-->
                                                 
                                             </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
@@ -131,18 +132,6 @@
                                                 <input type="hidden" id="surgery_patient_id" name="surgery_patient_id" />
                                                 <input type="text" class="form-control" id="surgery_patient_name" name="surgery_patient_name" value="" placeholder="Select Patient Name">
                                                 <div id="suggesstion-box"></div>
-<!--                                                <select class="form-control" name="surgery_patient_name" id="surgery_patient_name">
-                                                    <option disabled="" selected="">Select Patient Name</option>
-                                                    <?php 
-                                                        if(!empty($patient_list)){
-                                                            foreach ($patient_list as $value){
-                                                    ?> 
-                                                    <option value="<?php echo  $value['id']; ?>"><?php echo strtoupper($value['patient_name']); ?></option>
-                                                    <?php
-                                                        }
-                                                    }
-                                                    ?>
-                                                </select>-->
                                                 
                                             </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
@@ -180,19 +169,22 @@
                                                 <label>Surgery Date</label>
                                                 <input class="form-control" type="text" name="surgery_date" id="surgery_date" placeholder="DD/MM/YYYY">
                                             </div>
-                                            
+                                                                                  
+                                            <div class="form-group col-md-4 col-sm-6 col-xs-6">
+                                                <label>Adhar No.</label>
+                                                <input class="form-control" type="number"  name="patient_adhar_number" id="patient_adhar_number" placeholder="Enter Adhar No">
+                                            </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
                                                 <label>Surgery Amount</label>
-                                                <input class="form-control" type="number" min="1" name="surgery_amount" id="surgery_amount" placeholder="Enter Surgery Amount">
+                                                <input class="form-control" type="number" min="0" name="surgery_amount" id="surgery_amount" placeholder="Enter Surgery Amount">
                                             </div>
-                                            
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
                                                 <label>Discount Amount</label>
                                                 <input class="form-control" type="number" min="0" name="discount_amount" id="discount_amount" placeholder="Enter Discount Amount">
                                             </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
                                                 <label>Advance Amount</label>
-                                                <input class="form-control" type="number" min="1" name="advance_amount" id="advance_amount" placeholder="Enter Advance Amount">
+                                                <input class="form-control" type="number" min="0" name="advance_amount" id="advance_amount" placeholder="Enter Advance Amount">
                                             </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
                                                 <label>Pending Amount</label>
@@ -203,10 +195,6 @@
                                                 <input class="form-control" type="text" name="advance_taken" id="advance_taken" placeholder="Enter Person Name">
                                             </div>
                                             
-                                            <div class="form-group col-md-4 col-sm-6 col-xs-6">
-                                                <label>Parent Risk Bound</label>
-                                                <input class="form-control" type="file" name="parent_risk_bound" id="parent_risk_bound">
-                                            </div>
                                             <div class="form-group col-md-4 col-sm-6 col-xs-6">
                                                 <label>Patient Risk Bound</label>
                                                 <input class="form-control" type="file" name="patient_risk_bound" id="patient_risk_bound">

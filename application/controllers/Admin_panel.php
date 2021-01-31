@@ -298,35 +298,43 @@ class Admin_panel extends CI_Controller {
         $this->load->view('admin-panel/admin_footer');
     }
     
-    function  process_add_opd_patient(){
-        log_message('info', __METHOD__." ".json_encode($_POST, TRUE));
-        $data = array(
-            "patient_details.opd_number_id" => $this->input->post("opd_number_id"),
-            "patient_details.patient_name" => $this->input->post("patient_name"),
-            "patient_details.adhar_card_number" => $this->input->post("adhar_card_number"),
-            "patient_details.date" => $this->input->post("date"),
-            "patient_details.valid_date" => $this->input->post("valid_date"),
-            "patient_details.patient_age" => $this->input->post("patient_age"),
-            "patient_details.sex" => $this->input->post("sex"),
-            "patient_details.guardian_name" => $this->input->post("guardian_name"),
-            "patient_details.doctor_id" => $this->input->post("doctor_id"),
-            "patient_details.address" => $this->input->post("address")
-        );
-        
-        if(!empty($data)){
-            $inserted_id = $this->surgery_model->insertPatientDetails($data); 
-            if($inserted_id){
-                $this->session->set_flashdata("status","Successfully added.");  
-            } else {
-                $this->session->set_flashdata("error","Please try again..");
+    function process_add_opd_patient() {
+        log_message('info', __METHOD__ . " " . json_encode($_POST, TRUE));
+
+        if (!empty($this->input->post("opd_number_id"))) {
+            $opd_patient_list = $this->surgery_model->getPatientDetails("patient_details.id, patient_details.opd_number_id", array("patient_details.opd_number_id" => trim($this->input->post("opd_number_id"))), false);
+            if (empty($opd_patient_list)) {
+                $data = array(
+                    "patient_details.opd_number_id" => $this->input->post("opd_number_id"),
+                    "patient_details.patient_name" => $this->input->post("patient_name"),
+                    "patient_details.contact_number" => $this->input->post("contact_number"),
+                    "patient_details.date" => $this->input->post("date"),
+                    "patient_details.valid_date" => $this->input->post("valid_date"),
+                    "patient_details.shift" => $this->input->post("shift"),
+                    "patient_details.department" => $this->input->post("department"),
+                    "patient_details.guardian_name" => $this->input->post("guardian_name"),
+                    "patient_details.doctor_id" => $this->input->post("doctor_id"),
+                    "patient_details.address" => $this->input->post("address")
+                );
             }
-            
+        } else {
+            $data = array();
         }
-        
-        redirect(base_url()."add_opd_patient");
+
+        if (!empty($data)) {
+            $inserted_id = $this->surgery_model->insertPatientDetails($data);
+            if ($inserted_id) {
+                $this->session->set_flashdata("status", "Successfully added.");
+            } else {
+                $this->session->set_flashdata("error", "Please try again..");
+            }
+        } else {
+            $this->session->set_flashdata("error", "Already exists in our system.");
+        }
+
+        redirect(base_url() . "add_opd_patient");
     }
-    
-    
+
     function edit_opd_patient($patient_id = '') {
         $this->checkLoginAdminSession();
         $data = array();
@@ -348,11 +356,11 @@ class Admin_panel extends CI_Controller {
         $data = array(
             "patient_details.opd_number_id" => $this->input->post("opd_number_id"),
             "patient_details.patient_name" => $this->input->post("patient_name"),
-            "patient_details.adhar_card_number" => $this->input->post("adhar_card_number"),
+            "patient_details.contact_number" => $this->input->post("contact_number"),
             "patient_details.date" => $this->input->post("date"),
             "patient_details.valid_date" => $this->input->post("valid_date"),
-            "patient_details.patient_age" => $this->input->post("patient_age"),
-            "patient_details.sex" => $this->input->post("sex"),
+            "patient_details.shift" => $this->input->post("shift"),
+            "patient_details.department" => $this->input->post("department"),
             "patient_details.guardian_name" => $this->input->post("guardian_name"),
             "patient_details.doctor_id" => $this->input->post("doctor_id"),
             "patient_details.address" => $this->input->post("address")
@@ -380,55 +388,75 @@ class Admin_panel extends CI_Controller {
     
     function process_upload_opd_patient() {
         date_default_timezone_set("Asia/Calcutta");
-        $reader = PHPExcel_IOFactory::createReader('Excel2007');
-        $reader->setReadDataOnly(true);
-        $file = isset($_FILES["file"]['tmp_name']) ? $_FILES["file"]['tmp_name'] : '';
-        $objPHPExcel = $reader->load($file);
-        $objWorksheet = $objPHPExcel->getActiveSheet();
-        $header = true;
-        if ($header) {
-            $highestRow = $objWorksheet->getHighestRow();
-            $highestColumn = $objWorksheet->getHighestColumn();
-            $headingsArray = $objWorksheet->rangeToArray('A1:' . $highestColumn . '1', null, true, true, true);
-            $headingsArray = $headingsArray[1];
-            $excel_header = array('opd number id', 'patient name', 'adhar card number', 'patient age', 'sex', 'guardian name', 'doctor name', 'address');
-            $not_in_array = array_diff($excel_header, $headingsArray);
-            if (empty($not_in_array)) {
-                $namedDataArray = $this->excelDataToArray($highestRow, $objWorksheet, $highestColumn, $headingsArray);
-                
-                $bulkData = array();
-                foreach ($namedDataArray as $value){
-                    if(!empty($value['doctor name'])){
-                      $doctorList = $this->surgery_model->getDoctorLists("doctor_details.id", array("doctor_details.name"=> $value['doctor name']));
-                      $doctor_id = $doctorList[0]['id'];
-                    }
-                    $data = array(
-                        "opd_number_id"=> $value['opd number id'], 
-                        "patient_name"=> $value['patient name'],
-                        "adhar_card_number"=> $value['adhar card number'],
-                        "date"=> date('Y-m-d', strtotime(date('Y-m-d H:i:s'))),
-                        "valid_date"=> date('Y-m-d', strtotime(date('Y-m-d H:i:s') ."+ 20 day")),
-                        "patient_age"=> $value['patient age'],
-                        "sex"=> $value['sex'],
-                        "guardian_name"=> $value['guardian name'],
-                        "doctor_id"=> $doctor_id,
-                        "address"=> $value['address']                        
-                    );
-                    
-                    array_push($bulkData, $data);
-                }
-                
-               $this->surgery_model->insertPatientDetailInBulk($bulkData);
 
-               $this->session->set_flashdata("status","Successfully uploaded."); 
-                
+        $file_type_respose = $this->get_upload_file_type();
+        if ($file_type_respose['file_name_lenth']) {
+            if ($file_type_respose['status']) {
+                $data = $this->read_upload_file_header($file_type_respose);
+                $excel_header = array('department', 'opd_id', 'shift', 'opd_type', 'app_no', 'opd_date', 'patient_name', 'guardian_name', 'paddress', 'contact_no', 'amount', 'paid_amt', 'doc_name', 'cancel');
+                $check_header = $this->check_column_exist($excel_header, $data['header_data']);
+
+                if ($check_header['status']) {
+                    $bulkData = array();
+                    for ($row = 2; $row <= $data['highest_row']; $row++) {
+
+                        $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                        $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+                        if (!empty($sanitizes_row_data)) {
+                            $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                        }
+
+                        if (!empty($rowData['doc_name'])) {
+                            $doc_nameArr = explode('.', $rowData['doc_name']);
+                            $doctorList = $this->surgery_model->getDoctorLists("doctor_details.id", array("doctor_details.name" => trim($doc_nameArr[1])));
+                            if (!empty($doctorList)) {
+                                $doctor_id = $doctorList[0]['id'];
+                            } else {
+                                $doctor_id = '';
+                            }
+                        }
+
+                        if (!empty($rowData['opd_id'])) {
+                            $opd_patient_list = $this->surgery_model->getPatientDetails("patient_details.id, patient_details.opd_number_id", array("patient_details.opd_number_id" => trim($rowData['opd_id'])), false);
+                            if (empty($opd_patient_list)) {
+                                $data_array = array(
+                                    "department" => strtolower($rowData['department']),
+                                    "shift" => strtolower($rowData['shift']),
+                                    "opd_type" => strtolower($rowData['opd_type']),
+                                    "app_no" => $rowData['app_no'],
+                                    "opd_number_id" => $rowData['opd_id'],
+                                    "patient_name" => strtolower($rowData['patient_name']),
+                                    "date" => date('Y-m-d', strtotime(date('Y-m-d H:i:s'))),
+                                    "valid_date" => date('Y-m-d', strtotime(date('Y-m-d H:i:s') . "+ 20 day")),
+                                    "contact_number" => $rowData['contact_no'],
+                                    "guardian_name" => strtolower($rowData['guardian_name']),
+                                    "doctor_id" => $doctor_id,
+                                    "address" => strtolower($rowData['paddress']),
+                                    "amount" => $rowData['amount'],
+                                    "paid_amount" => $rowData['paid_amt'],
+                                    "cancelation" => strtolower($rowData['cancel'])
+                                );
+                                array_push($bulkData, $data_array);
+                            }
+                        }
+                    }
+                    if (!empty($bulkData)) {
+                        $this->surgery_model->insertPatientDetailInBulk($bulkData);
+                        $this->session->set_flashdata("status", "Successfully uploaded.");
+                    } else {
+                        $this->session->set_flashdata("error", "Excel file already uploaded.");
+                    }
+                } else {
+                    $this->session->set_flashdata("error", "Header incorrect of excel file..");
+                }
             } else {
-               $this->session->set_flashdata("error","Header incorrect of excel file.."); 
+                $this->session->set_flashdata("error", "Header incorrect of excel file..");
             }
         }
-       redirect(base_url()."upload_opd_patient_file"); 
+
+        redirect(base_url() . "upload_opd_patient_file");
     }
-    
+
     function excelDataToArray($highestRow, $objWorksheet, $highestColumn, $headingsArray) {
         $namedDataArray = array();
         $r = -1;
@@ -489,7 +517,60 @@ class Admin_panel extends CI_Controller {
         return $response;
     }
     
+    private function read_upload_file_header($file) {
+        log_message('info', __FUNCTION__ . "=> getting upload file header");
+        try {
+            $objReader = PHPExcel_IOFactory::createReader($file['file_ext']);
+            $objPHPExcel = $objReader->load($file['file_tmp_name']);
+        } catch (Exception $e) {
+            die('Error loading file "' . pathinfo($file['file_tmp_name'], PATHINFO_BASENAME) . '": ' . $e->getMessage());
+        }
+
+        $file_name = $_FILES["file"]["name"];
+//        move_uploaded_file($file['file_tmp_name'], TMP_FOLDER . $file_name);
+//        chmod(TMP_FOLDER . $file_name, 0777);
+        //  Get worksheet dimensions
+        $sheet = $objPHPExcel->getSheet(0);
+        $highestRow = $sheet->getHighestDataRow();
+        $highestColumn = $sheet->getHighestDataColumn();
+        $response['status'] = TRUE;
+        //Validation for Empty File
+        if ($highestRow <= 1) {
+            log_message('info', __FUNCTION__ . ' Empty File Uploaded');
+            $response['status'] = False;
+        }
+
+        $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
+        $headings_new = array();
+        foreach ($headings as $heading) {
+            $heading = str_replace(array("/", "(", ")", "."), "", $heading);
+            array_push($headings_new, str_replace(array(" "), "_", $heading));
+        }
+
+        $headings_new1 = array_map('strtolower', $headings_new[0]);
+
+        $response['file_name'] = $file_name;
+        $response['header_data'] = $headings_new1;
+        $response['sheet'] = $sheet;
+        $response['highest_row'] = $highestRow;
+        $response['highest_column'] = $highestColumn;
+        return $response;
+    }
     
+    function check_column_exist($actual_header, $upload_file_header) {
+
+        $is_all_header_present = array_diff($actual_header, $upload_file_header);
+        if (empty($is_all_header_present)) {
+            $return_data['status'] = TRUE;
+            $return_data['message'] = '';
+        } else {
+            $this->Columfailed = "<b>" . implode($is_all_header_present, ',') . " </b> column does not exist.Please correct these and upload again. <br><br><b> For reference,Please use previous successfully upload file from CRM</b>";
+            $return_data['status'] = FALSE;
+            $return_data['message'] = $this->Columfailed;
+        }
+
+        return $return_data;
+    }
     
     public function opd_patient_list() {
         $this->checkLoginAdminSession();
@@ -543,7 +624,7 @@ class Admin_panel extends CI_Controller {
         $data = array();
         if (!empty($search_flag)) {
             $post['column_order'] = array();
-            $post['column_search'] = array('doctor_details.name','patient_details.opd_number_id','patient_details.adhar_card_number');
+            $post['column_search'] = array('doctor_details.name','patient_details.opd_number_id');
             $post['where'] = '';
             
             if (!empty($start_date)) {
@@ -566,10 +647,10 @@ class Admin_panel extends CI_Controller {
 
             $select = "patient_details.id, patient_details.opd_number_id, "
                     . "patient_details.patient_name, patient_details.valid_date, "
-                    . "patient_details.date, patient_details.adhar_card_number, "
-                    . "patient_details.patient_age, patient_details.sex, "
-                    . "patient_details.guardian_name, patient_details.address, "
-                    . "doctor_details.name, doctor_details.department, patient_details.active as is_active";
+                    . "patient_details.date, patient_details.cancelation, "
+                    . "patient_details.paid_amount, patient_details.amount, patient_details.contact_number,"
+                    . "patient_details.guardian_name, patient_details.address, patient_details.app_no, patient_details.opd_type, patient_details.department, patient_details.shift,"
+                    . "doctor_details.name, patient_details.active as is_active";
             
             $list = $this->surgery_model->getPatientList($post, $select);
            
@@ -592,11 +673,11 @@ class Admin_panel extends CI_Controller {
         $row[] = $no;
         $row[] = $patient_list->opd_number_id;
         $row[] = $patient_list->patient_name;
-        $row[] = $patient_list->adhar_card_number;
+        $row[] = $patient_list->department;
         $row[] = date("F j, Y", strtotime($patient_list->date));
         $row[] = date("F j, Y", strtotime($patient_list->valid_date));
-        $row[] = $patient_list->patient_age;
-        $row[] = $patient_list->sex;
+        $row[] = $patient_list->shift;
+        $row[] = $patient_list->opd_type;
         $row[] = $patient_list->guardian_name;
         $row[] = $patient_list->name;
         $row[] = "<span style='word-wrap: break-word;'>" . $patient_list->address . "</span>";
@@ -613,11 +694,7 @@ class Admin_panel extends CI_Controller {
     
     function process_add_patient_surgery_list() {
         $data = array();
-        $parent_file_name = $_FILES["parent_risk_bound"]["name"];
-        $parent_file_error = $_FILES['parent_risk_bound']['error'];
-        $parent_tmp_file = $_FILES['parent_risk_bound']['tmp_name'];
-        $parent_file_size = $_FILES["parent_risk_bound"]["size"];
-
+    
         $patient_file_name = $_FILES["patient_risk_bound"]["name"];
         $patient_file_error = $_FILES['patient_risk_bound']['error'];
         $patient_tmp_file = $_FILES['patient_risk_bound']['tmp_name'];
@@ -637,11 +714,9 @@ class Admin_panel extends CI_Controller {
         $data['advance_amount'] = $this->input->post("advance_amount");
         $data['pending_amount'] = $this->input->post("pending_amount");
         $data['advance_taken'] = $this->input->post("advance_taken");
+        $data['patient_adhar_number'] = $this->input->post("patient_adhar_number");
         $data['surgery_patient_details.user_id'] = $this->session->userdata('userID');
-        $return = $this->upload_multiple_images($parent_file_name, $parent_file_error, $parent_tmp_file, $parent_file_size, 'parent-risk-bound-file');
-        if (!empty($return)) {
-            $data['parent_risk_bound_file'] = $this->input->post("image");
-            $_POST['image'] = '';
+       
             $patient_return = $this->upload_multiple_images($patient_file_name, $patient_file_error, $patient_tmp_file, $patient_file_size, 'patient-risk-bound-file');
             if (!empty($patient_return)) {
                 $data['patient_risk_bound_file'] = $this->input->post("image");
@@ -662,9 +737,7 @@ class Admin_panel extends CI_Controller {
             } else {
                 $this->session->set_flashdata("error", "Check File Extensions Patient Risk Bound.");
             }
-        } else {
-            $this->session->set_flashdata("error", "Check File Extensions Parent Risk Bound.");
-        }
+      
 
         redirect(base_url() . "surgery_patient_list");
     }
@@ -708,49 +781,100 @@ class Admin_panel extends CI_Controller {
         $search_flag = trim($this->input->post('search_flag'));
         $start_date = trim($this->input->post('start_date'));
         $end_date = trim($this->input->post('end_date'));
+        $discharge_start_date = trim($this->input->post('discharge_start_date'));
+        $discharge_end_date = trim($this->input->post('discharge_end_date'));
         $patient_id = trim($this->input->post('patient_id'));
-       
+        
+        $doctor_id = trim($this->input->post('doctor_id'));
+        $advance_taken = trim($this->input->post('advance_taken'));
+        $surgery_type_id = trim($this->input->post('surgery_type_id'));
+        
+        
+        $chanage_start_date = '';
+        if (!empty($start_date)) {
+            $chanage_start_date = date('Y-m-d', strtotime('+29 days', strtotime(trim($this->input->post('start_date')))));
+        }
+        
+        $discharge_start_date = '';
+        if (!empty($discharge_start_date)) {
+            $discharge_date = date('Y-m-d', strtotime('+29 days', strtotime(trim($this->input->post('discharge_start_date')))));
+        }
+
         $data = array();
         if (!empty($search_flag)) {
             $post['column_order'] = array();
-            $post['column_search'] = array('doctor_details.name','patient_details.opd_number_id','patient_details.adhar_card_number');
+            $post['column_search'] = array('doctor_details.name', 'patient_details.opd_number_id', 'patient_details.contact_number','surgery_patient_details.patient_adhar_number');
             $post['where'] = '';
-            
-            if (!empty($start_date)) {
-                if(empty($post['where'])){
+
+            if (!empty($start_date) && (strtotime($chanage_start_date) != strtotime($end_date))) {
+                if (empty($post['where'])) {
                     $post['where'] .= " surgery_patient_details.surgery_date >= '" . $start_date . "' AND  surgery_patient_details.surgery_date <= '" . $end_date . "'";
-                }else{
-                   $post['where'] .= " AND surgery_patient_details.surgery_date >= '" . $start_date . "' AND  surgery_patient_details.surgery_date <= '" . $end_date . "'"; 
+                } else {
+                    $post['where'] .= " AND surgery_patient_details.surgery_date >= '" . $start_date . "' AND  surgery_patient_details.surgery_date <= '" . $end_date . "'";
                 }
-                
             }
 
-            if (!empty($doctor_id)) {
-                if(empty($post['where'])){
-                    $post['where'] .= " surgery_patient_details.patient_id =" . $patient_id;
-                }else{
-                   $post['where'] .= " AND surgery_patient_details.patient_id =" . $patient_id; 
+            if (!empty($discharge_start_date) && strtotime($discharge_date) != strtotime($discharge_end_date)) {
+                if (empty($post['where'])) {
+                    $post['where'] .= " surgery_patient_details.discarge_date >= '" . $discharge_start_date . "' AND  surgery_patient_details.discarge_date <= '" . $discharge_end_date . "'";
+                } else {
+                    $post['where'] .= " AND surgery_patient_details.discarge_date >= '" . $discharge_start_date . "' AND  surgery_patient_details.discarge_date <= '" . $discharge_end_date . "'";
                 }
-                
+            }
+
+
+            if (!empty($doctor_id)) {
+                if (empty($post['where'])) {
+                    $post['where'] .= " surgery_patient_details.doctor_id =" . $doctor_id;
+                } else {
+                    $post['where'] .= " AND surgery_patient_details.doctor_id =" . $doctor_id;
+                }
+            }
+            
+            if (!empty($surgery_type_id)) {
+                if (empty($post['where'])) {
+                    $post['where'] .= " surgery_patient_details.surgery_type_id =" . $surgery_type_id;
+                } else {
+                    $post['where'] .= " AND surgery_patient_details.surgery_type_id =" . $surgery_type_id;
+                }
+            }
+            
+            
+            if (!empty($advance_taken)) {
+                if (empty($post['where'])) {
+                    $post['where'] .= " surgery_patient_details.advance_taken =" . $advance_taken;
+                } else {
+                    $post['where'] .= " AND surgery_patient_details.advance_taken =" . $advance_taken;
+                }
+            }
+            
+            
+            
+            if (!empty($patient_id)) {
+                if (empty($post['where'])) {
+                    $post['where'] .= " surgery_patient_details.patient_id =" . $patient_id;
+                } else {
+                    $post['where'] .= " AND surgery_patient_details.patient_id =" . $patient_id;
+                }
             }
 
             $select = "surgery_patient_details.id, patient_details.opd_number_id, "
                     . "patient_details.patient_name, patient_details.valid_date, "
-                    . "patient_details.date, patient_details.adhar_card_number, "
-                    . "patient_details.patient_age, patient_details.sex, "
+                    . "patient_details.date, patient_details.contact_number, "
+                    . "patient_details.shift, patient_details.department, "
                     . "patient_details.guardian_name, patient_details.address, "
                     . "doctor_details.name, doctor_details.department, patient_details.active as is_active,"
                     . "surgery_patient_details.surgery_date, surgery_patient_details.surgery_amount, "
                     . "surgery_patient_details.discount_amount, surgery_patient_details.advance_amount, "
                     . "surgery_patient_details.pending_amount, surgery_patient_details.advance_taken, "
-                    . ", surgery_patient_details.surgery_date, surgery_patient_details.patient_risk_bound_file"
-                    . ", surgery_patient_details.parent_risk_bound_file, surgery_patient_details.surgery_date"
+                    . ",surgery_patient_details.surgery_date, surgery_patient_details.patient_risk_bound_file"
+                    . ",surgery_patient_details.patient_adhar_number, surgery_patient_details.surgery_date"
                     . ", surgery_patient_details.patient_referrer_file, surgery_patient_details.discarge_date"
                     . ", surgery_type.surgery_name, doctor_details.name as doctor_name";
-                   
-            
+
+
             $list = $this->surgery_model->getSurgeryPatientList($post, $select);
-           
+
             $data = array();
             $no = $post['start'];
             foreach ($list as $patient_list) {
@@ -764,8 +888,8 @@ class Admin_panel extends CI_Controller {
             'post' => $post
         );
     }
-    
-        function get_surgery_patient_list_table($patient_list, $no) {
+
+    function get_surgery_patient_list_table($patient_list, $no) {
         $row = array();
         $row[] = $no;
        
@@ -779,10 +903,7 @@ class Admin_panel extends CI_Controller {
         $row[] = $patient_list->pending_amount;
         $row[] = ucfirst($patient_list->advance_taken);
         
-        $row[] ='<a href="'.base_url().'download_parent_file/'. base64_encode($patient_list->parent_risk_bound_file).'" target="_blank"><svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-cloud-download" fill="currentColor" style="color:#4ab733;">
-                    <path fill-rule="evenodd" d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"></path>
-                    <path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708l3 3z"></path>
-		</svg></a>';
+        $row[] = "<span style='word-wrap:break-word;'>" . $patient_list->patient_adhar_number . "</span>";
         $row[] ='<a href="'.base_url().'download_patient_file/'. base64_encode($patient_list->patient_risk_bound_file).'" target="_blank"><svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-cloud-download" fill="currentColor" style="color:#4ab733;">
                     <path fill-rule="evenodd" d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"></path>
                     <path fill-rule="evenodd" d="M7.646 15.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 14.293V5.5a.5.5 0 0 0-1 0v8.793l-2.146-2.147a.5.5 0 0 0-.708.708l3 3z"></path>
@@ -865,17 +986,17 @@ class Admin_panel extends CI_Controller {
         if (!empty($id)) {
             $select = "surgery_patient_details.id, patient_details.opd_number_id, patient_details.id as patient_id, "
                     . "patient_details.patient_name, patient_details.valid_date, patient_details.doctor_id,"
-                    . "patient_details.date, patient_details.adhar_card_number, surgery_patient_details.surgery_type_id,"
-                    . "patient_details.patient_age, patient_details.sex, "
+                    . "patient_details.date, patient_details.contact_number, surgery_patient_details.surgery_type_id,"
+                    . "patient_details.shift, patient_details.department, "
                     . "patient_details.guardian_name, patient_details.address, "
                     . "doctor_details.name, doctor_details.department, patient_details.active as is_active,"
                     . "surgery_patient_details.surgery_date, surgery_patient_details.surgery_amount, "
                     . "surgery_patient_details.discount_amount, surgery_patient_details.advance_amount, "
                     . "surgery_patient_details.pending_amount, surgery_patient_details.advance_taken, "
                     . ", surgery_patient_details.surgery_date, surgery_patient_details.patient_risk_bound_file"
-                    . ", surgery_patient_details.parent_risk_bound_file, surgery_patient_details.surgery_date"
+                    . ", surgery_patient_details.surgery_date"
                     . ", surgery_patient_details.patient_referrer_file, surgery_patient_details.discarge_date"
-                    . ", surgery_type.surgery_name, doctor_details.name as doctor_name";
+                    . ", surgery_type.surgery_name, doctor_details.name as doctor_name, surgery_patient_details.patient_adhar_number";
             $post['where'] = " surgery_patient_details.id =" . $id;
             $data['doctor_list'] = $this->surgery_model->getDoctorLists("doctor_details.id, doctor_details.name", array());
             $data['surgery_list'] = $this->surgery_model->getSurgeryTypeList("*", array());
@@ -896,11 +1017,7 @@ class Admin_panel extends CI_Controller {
     function process_edit_patient_surgery(){
 
         $data = array();
-        $parent_file_name = $_FILES["parent_risk_bound"]["name"];
-        $parent_file_error = $_FILES['parent_risk_bound']['error'];
-        $parent_tmp_file = $_FILES['parent_risk_bound']['tmp_name'];
-        $parent_file_size = $_FILES["parent_risk_bound"]["size"];
-
+      
         $patient_file_name = $_FILES["patient_risk_bound"]["name"];
         $patient_file_error = $_FILES['patient_risk_bound']['error'];
         $patient_tmp_file = $_FILES['patient_risk_bound']['tmp_name'];
@@ -917,6 +1034,10 @@ class Admin_panel extends CI_Controller {
 
         if (!empty($this->input->post("surgery_type"))) {
             $data['surgery_type_id'] = $this->input->post("surgery_type");
+        }
+        
+        if (!empty($this->input->post("patient_adhar_number"))) {
+            $data['patient_adhar_number'] = $this->input->post("patient_adhar_number");
         }
 
         if (!empty($this->input->post("doctor_id"))) {
@@ -947,17 +1068,7 @@ class Admin_panel extends CI_Controller {
             $data['advance_taken'] = $this->input->post("advance_taken");
         }
         
-        if (!empty($parent_file_name)) {
-            $return = $this->upload_multiple_images($parent_file_name, $parent_file_error, $parent_tmp_file, $parent_file_size, 'parent-risk-bound-file');
-            if (!empty($return)) {
-                $data['parent_risk_bound_file'] = $this->input->post("image");
-                $_POST['image'] = '';
-            } else {
-                $this->session->set_flashdata("error", "Check File Extensions Parent Risk Bound.");
-            }
-        }
-
-
+        
         if (!empty($patient_file_name)) {
             $patient_return = $this->upload_multiple_images($patient_file_name, $patient_file_error, $patient_tmp_file, $patient_file_size, 'patient-risk-bound-file');
             if (!empty($patient_return)) {
@@ -1049,7 +1160,85 @@ class Admin_panel extends CI_Controller {
         redirect(base_url() . "download_hospital_surgery_file/" . $id);
     }
     
+    function advance_search_surgery_patient(){
+        $this->checkLoginAdminSession();
+        $data = array();
+        $data['patient_list'] = $this->surgery_model->getPatientDetails("patient_details.id as partient_id, patient_details.patient_name", array(), TRUE);
+        $data['doctor_list'] = $this->surgery_model->getDoctorLists("doctor_details.id, doctor_details.name", array());
+        $data['surgery_list'] = $this->surgery_model->getSurgeryTypeList("*", array());
+        $data['advance_taken_by'] = $this->surgery_model->getAdvanceTakenPersonList("surgery_patient_details.advance_taken", array(), "surgery_patient_details.advance_taken");
+
+        $this->load->view('admin-panel/admin_header');
+        $this->load->view('admin-panel/admin_sidebar');
+        $this->load->view("admin-panel/advance_search_patient_list", $data);
+        $this->load->view('admin-panel/admin_footer');
+    }
     
+    
+    function create_new_user_account(){
+        $this->load->view('admin-panel/admin_header');
+        $this->load->view('admin-panel/admin_sidebar');
+        $this->load->view("admin-panel/create_new_user_account");
+        $this->load->view('admin-panel/admin_footer');
+    }
+    
+    function process_create_new_user_account() {
+        $user_type = $this->input->post("user_type");
+        $name = $this->input->post("user_name");
+        $email = $this->input->post("user_email");
+        $mobile_no = $this->input->post("user_phone");
+        $data = array();
+        if (!empty($email)) {
+            $data["user_type"] = $user_type;
+            $data["name"] = $name;
+            $data["email"] = $email;
+            $data["mobile_no"] = $mobile_no;
+            $data["clear_password"] = $this->input->post("password");
+            $data["has_key_password"] = md5($this->input->post("password"));
+            $data["terms_condition_status"] = true;
+            if ($this->input->post("password") == $this->input->post("confirm_password")) {
+                $users_details = $this->surgery_model->getUsersDetails('users.id,users.email', array('users.email' => $email));
+                if (empty($users_details)) {
+                    if (!empty($data)) {
+                        $user_id = $this->surgery_model->insertUsersDetails($data);
+                        $this->session->set_flashdata("status", "Successfully.");
+                    }
+                } else {
+                    $this->session->set_flashdata("error", "Account already exits...");
+                }
+            } else {
+                $this->session->set_flashdata("error", "Your password & confirm password should be equal.");
+            }
+        } else {
+            $this->session->set_flashdata("error", "Enter valid email...");
+        }
+        redirect(base_url() . "surgery_patient_list");
+    }
+
+    public function users_list() {
+        $this->checkLoginAdminSession();
+        $data = array();
+        $data['users_list'] = $this->surgery_model->getUsersDetails("users.id, users.name, users.email, users.user_type, users.active, users.mobile_no", array());
+        $this->load->view('admin-panel/admin_header');
+        $this->load->view('admin-panel/admin_sidebar');
+        $this->load->view("admin-panel/users_list", $data);
+        $this->load->view('admin-panel/admin_footer');
+    }
+    
+    function manageuser_account() {
+        $user_id = $this->input->post("user_id");
+        $data = array();
+        if ($this->input->post("status") == 1) {
+            $data['users.active'] = 0;
+        } else {
+            $data['users.active'] = 1;
+        }
+        if (!empty($data)) {
+            $this->surgery_model->updateUsersDetails($data, array("users.id" => $user_id));
+            $this->session->set_flashdata("status", "Successfully Updated.");
+            echo json_encode(array("status"=>'sucess'));
+        }
+    }
 
     private function setSession($data) {
         $userSession = array(

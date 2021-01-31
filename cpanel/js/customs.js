@@ -50,17 +50,16 @@ $(function() {
   
  $("#add_opd_patient").validate({  
     rules: {
-      opt_number_id: {  
+      opd_number_id: {  
         required: true
       },
       patient_name: {
         required: true
       },
-      adhar_card_number: {
+      contact_number: {
         required: true,
         digits: true,
-        minlength: 12,
-        maxlength: 12
+        maxlength: 10
       },
       date: {
         required: true
@@ -68,11 +67,10 @@ $(function() {
       valid_date: {
         required: true
       },
-      patient_age: {
+      shift: {
         required: true,
-        maxlength: 3
       },
-      sex: {
+      department: {
         required: true
       },
       guardian_name: {
@@ -87,15 +85,13 @@ $(function() {
       }
     },
     messages: {
-      opt_number_id: {
-        required: "<span style='color:red;'> Enter OPD Number Id.</span>",
-      },
+      opd_number_id: "<span style='color:red;'> Enter OPD Number Id.</span>",
       patient_name: "<span style='color:red;'> Enter Patient Name.</span>",
-      adhar_card_number: "<span style='color:red;'>Enter 12 Digit Adhar No.</span>",
+      contact_number: "<span style='color:red;'>Enter Contact Number.</span>",
       date: "<span style='color:red;'>Select Date.</span>",
       valid_date: "<span style='color:red;'>Select Valid Date.</span>",
-      patient_age: "<span style='color:red;'>Enter Patient Age.</span>",
-      sex: "<span style='color:red;'> Select Patient Sex.</span>",
+      shift: "<span style='color:red;'>Enter shift.</span>",
+      department: "<span style='color:red;'> Enter Department.</span>",
       guardian_name: "<span style='color:red;'>Enter Guardian Name.</span>",
       doctor_id: "<span style='color:red;'>Select Doctor Name.</span>",
       address: "<span style='color:red;'>Enter Address.</span>"
@@ -109,17 +105,16 @@ $(function() {
   
   $("#edit_opd_patient").validate({  
     rules: {
-      opt_number_id: {  
+      opd_number_id: {  
         required: true
       },
       patient_name: {
         required: true
       },
-      adhar_card_number: {
+      contact_number: {
         required: true,
         digits: true,
-        minlength: 12,
-        maxlength: 12
+        maxlength: 10
       },
       date: {
         required: true
@@ -127,11 +122,10 @@ $(function() {
       valid_date: {
         required: true
       },
-      patient_age: {
+      shift: {
         required: true,
-        maxlength: 3
       },
-      sex: {
+      department: {
         required: true
       },
       guardian_name: {
@@ -146,15 +140,13 @@ $(function() {
       }
     },
     messages: {
-      opt_number_id: {
-        required: "<span style='color:red;'> Enter OPD Number Id.</span>",
-      },
+      opd_number_id: "<span style='color:red;'> Enter OPD Number Id.</span>",
       patient_name: "<span style='color:red;'> Enter Patient Name.</span>",
-      adhar_card_number: "<span style='color:red;'>Enter 12 Digit Adhar No.</span>",
+      contact_number: "<span style='color:red;'>Enter Contact Number.</span>",
       date: "<span style='color:red;'>Select Date.</span>",
       valid_date: "<span style='color:red;'>Select Valid Date.</span>",
-      patient_age: "<span style='color:red;'>Enter Patient Age.</span>",
-      sex: "<span style='color:red;'>Select Patient Sex.</span>",
+      shift: "<span style='color:red;'>Enter shift.</span>",
+      department: "<span style='color:red;'>Enter Department.</span>",
       guardian_name: "<span style='color:red;'>Enter Guardian Name.</span>",
       doctor_id: "<span style='color:red;'>Select Doctor Name.</span>",
       address: "<span style='color:red;'>Enter Address.</span>"
@@ -214,45 +206,49 @@ $(function() {
     }
   });
   
-  $("#sign_in_users").validate({
+   
+  
+  $("#create_new_login").validate({
     rules: {
-      email: {
+      user_name: {
+        required: true,
+      },
+      user_email: {
         required: true,
         email: true
       },
-      clear_password: {
+     user_phone: {
         required: true,
-        minlength: 5
-      }
+      },
+      user_type: {
+        required: true,
+      },
+      password: {
+        required: true,
+        minlength: 5   
+      },
+      confirm_password: {
+        required: true,
+        minlength: 5,
+        equalTo : "#password"
+      },
+     
     },
     // Specify validation error messages
     messages: {
-      clear_password: {
-        required: "<span style='color:red;'>Please enter password</span>",
-        minlength: "<span style='color:red;'>Please enter your valid password</span>"
+      user_email: "<span style='color:red;'>Enter email.</span>",
+      password: {
+         required:"<span style='color:red;'>Enter password.</span>",
+         minlength:"<span style='color:red;'>Password min 5 digit.</span>",
       },
-      email: "<span style='color:red;'>Please enter a valid email address</span>"
-    },
-    // Make sure the form is submitted to the destination defined
-    // in the "action" attribute of the form when valid
-    submitHandler: function(form,e) {
-        e.preventDefault();
-            $.ajax({
-                type: 'POST',
-                url: BASE_URL+'admin_panel/sign_in',
-                dataType: "json",
-                data: $('#login').serialize(),
-                success: function(result) {
-                    if(result == 1){
-                       window.location.href = BASE_URL+"admin/dashboard";
-                    }else{
-                       $("#login_message").html(result['message']).css('color','red'); 
-                    }
-                    
-                }
-            });
-            return false;
-      form.submit();
+      confirm_password:{ 
+          required:"<span style='color:red;'>Confirm password.</span>",
+          minlength:"<span style='color:red;'>Confirm Pass min 5 digit.</span>",
+          equalTo:"<span style='color:red;'>Password & Confirm mismatched.</span>",
+      },
+      user_phone: "<span style='color:red;'>Enter phone No.</span>",
+      user_name: "<span style='color:red;'>Enter Name.</span>",
+      user_type: "<span style='color:red;'>Select permission.</span>"
     }
   });
    
